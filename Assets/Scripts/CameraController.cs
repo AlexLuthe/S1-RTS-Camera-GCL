@@ -49,9 +49,15 @@ public class CameraController : MonoBehaviour {
     [SerializeField]
     float scrollSpeed = 25;
 
+    bool ScreenShakeActive = false;
+    Vector3 ScreenShakeDirection = default(Vector3);
+    float ScreenShakeForce = 0;
+
 	// Use this for initialization
 	void Start () {
-
+        ScreenShakeForce = 1;
+        ScreenShakeDirection = new Vector3(0.75f, 0.25f, 0.5f);
+        //ScreenShakeActive = true;
 	}
 	
 	// Update is called once per frame
@@ -59,17 +65,30 @@ public class CameraController : MonoBehaviour {
 	    MoveCamera();
         RotateCamera();
         ZoomCamera();
+        ScreenShake();
 	}
 
     void MoveCamera() {
-        if (Input.GetKey(_Camera_Controls.forward))
-            currentCamera.transform.Translate(Vector3.forward * movementSpeed * Time.deltaTime);
-        else if (Input.GetKey(_Camera_Controls.backward))
-            currentCamera.transform.Translate(Vector3.back * movementSpeed * Time.deltaTime);
-        if (Input.GetKey(_Camera_Controls.left))
-            currentCamera.transform.Translate(Vector3.left * movementSpeed * Time.deltaTime);
-        else if (Input.GetKey(_Camera_Controls.right))
-            currentCamera.transform.Translate(Vector3.right * movementSpeed * Time.deltaTime);
+        if (Input.GetKey(_Camera_Controls.forward)) {
+            Vector3 pos = currentCamera.transform.position;
+            pos += Vector3.forward * movementSpeed * Time.deltaTime;
+            currentCamera.transform.position = pos;
+        }
+        else if (Input.GetKey(_Camera_Controls.backward)) {
+            Vector3 pos = currentCamera.transform.position;
+            pos += Vector3.back * movementSpeed * Time.deltaTime;
+            currentCamera.transform.position = pos;
+        }
+        if (Input.GetKey(_Camera_Controls.left)) {
+            Vector3 pos = currentCamera.transform.position;
+            pos += Vector3.left * movementSpeed * Time.deltaTime;
+            currentCamera.transform.position = pos;
+        }
+        else if (Input.GetKey(_Camera_Controls.right)) {
+            Vector3 pos = currentCamera.transform.position;
+            pos += Vector3.right * movementSpeed * Time.deltaTime;
+            currentCamera.transform.position = pos;
+        }
 
         // read the Horizontal and Vertical axes and move camera accordingly
 
@@ -120,7 +139,14 @@ public class CameraController : MonoBehaviour {
     }
 
     void ScreenShake() {
-
+        // Shake Screen if it should shake
+        if (ScreenShakeActive)
+            currentCamera.transform.Translate(ScreenShakeDirection * ScreenShakeForce * Time.deltaTime);
+        // Determine new direction and force if camera has reached destination
+        if (Vector3.Distance(currentCamera.transform.position, currentCamera.transform.position + ScreenShakeDirection) < 0.25f) {
+            ScreenShakeDirection = new Vector3(Random.Range(0, 1), Random.Range(0, 1), Random.Range(0, 1));
+            ScreenShakeForce -= 0.1f;
+        }
     }
-
 }
+
